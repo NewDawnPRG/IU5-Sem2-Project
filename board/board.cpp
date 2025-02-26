@@ -59,3 +59,59 @@ void Board::capturedAdd(int figure){
 int Board::GetCell(int ind1, int ind2) const {
     return boardMas_[ind1][ind2];
 };
+
+void Board::capturedRemove(int ind1, int ind2, int num){
+    if(boardMas_[ind1][ind2] == 0){ // если в точке нету фигур
+        if(currentMove_){ // если ход черных
+            boardMas_[ind1][ind2] == capturedWhite_[num]; // выбрасиываем фигуру
+            capturedWhite_[num] = 0; // ставим на это место 0
+        }
+        else{ // иначе
+            boardMas_[ind1][ind2] == capturedBlack_[num]; // выбрасиываем фигуру
+            capturedBlack_[num] = 0; // ставим на это место 0
+        }
+    }
+    CheckCheck();// проверить, не появился ли шах на доске
+    currentMove_ = !currentMove_;// сменить ход
+}
+
+void Board::CheckCheck(){
+    int ind1;
+    int ind2;
+    FindKing(ind1, ind2);
+    if(currentMove_){ // если ход черных
+        if(ind2+1 <10){
+            if((boardMas_[ind1][ind2+1] == 1) ||(boardMas_[ind1][ind2+1] == 3) ||(boardMas_[ind1][ind2+1] == 4) ||(boardMas_[ind1][ind2+1] == 6) ||(boardMas_[ind1][ind2+1] == 7)){
+                checkWhite_ = true;
+            }
+        }
+    }
+    else{
+
+    }
+}
+
+void Board::FindKing(int &ind1, int &ind2){
+    if(currentMove_){ // если ход черных
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                if(boardMas_[i][j] == 8) {// если король найден
+                    ind1 = i;
+                    ind2 = j;
+                    break;
+                }
+            }
+        }
+    }
+    else{
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                if(boardMas_[i][j] == -8) {// если король найден
+                    ind1 = i;
+                    ind2 = j;
+                    break;
+                }
+            }
+        }
+    }
+}

@@ -11,6 +11,7 @@ public:
     void capturedRemove(int ind1, int ind2, int num);// убрать фигуру из списка
     int GetCell(int ind1, int ind2) const;// Получить информацию о клетке поля
     void CheckCheck();// проверка наличия шаха
+    void FindKing(int &ind1, int &ind2); // поиск короля
 
 private:
     int boardMas_[9][9]; // Массив самой доски
