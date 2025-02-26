@@ -1,8 +1,7 @@
 #include <iostream>
 
 int main(){
-    std::cout << "Hello Canadai !";
-    std::cout << " Welcome to join us !";
+    std::cout << "Hello BMSTU!";
 
     return 0;
 }
