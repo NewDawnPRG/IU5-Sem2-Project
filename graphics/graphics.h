@@ -4,6 +4,7 @@
 class Graphics {
 public:
     // Code
+    void printSmth();
 private:
     // Code
 };
