@@ -1,12 +1,19 @@
 #include <iostream>
 
 #include "graphics/graphics.h"
+#include "board/board.h"
 
 int main(){
-    std::cout << "Hello BMSTU!" << std::endl;
+    Board *board;
+    // Sample code
+    auto g = Graphics(board);
     
-    auto g = Graphics();
-    g.printSmth();
+    bool run = true;
+    int events = g.getEvents();
+    while ((events & g.EVENT_CLOSE) != 1) {
+        events = g.getEvents();
+        g.redraw();
+    }
 
     return 0;
 }

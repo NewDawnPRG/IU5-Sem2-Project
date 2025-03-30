@@ -3,6 +3,9 @@ project(IU5-SEM2-PROJECT)
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(SFML REQUIRED COMPONENTS Graphics Window System)
+
+add_subdirectory(board)
 add_subdirectory(graphics)
 
 add_executable(${PROJECT_NAME} 
@@ -11,4 +14,7 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE graphics 
+    sfml-graphics 
+    sfml-window 
+    sfml-system
 )

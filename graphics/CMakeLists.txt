@@ -18,3 +18,7 @@ set(${project}_SOURCE_LIST
 add_library(${project}
         STATIC
         ${${project}_SOURCE_LIST})
+
+target_link_libraries(${project}
+        PRIVATE sfml-graphics 
+)
