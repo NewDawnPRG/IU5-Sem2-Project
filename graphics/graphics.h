@@ -11,8 +11,9 @@ class Graphics
     Board *_board;
     sf::View view;
 
+    const int LINE_WIDTH = 2;
     const int BORDER = 30;
-    const int BOTTOM_BORDER = 100;
+    const int RESERVE_BORDER = 30;
 
 public:
     Graphics(Board *board);

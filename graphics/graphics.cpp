@@ -1,15 +1,18 @@
 #include "graphics.h"
 
-#include <iostream>
+#include <string>
 #include <cmath>
 
 Graphics::Graphics(Board *board)
 {
-    _window = sf::RenderWindow(sf::VideoMode({600, 800}), "Сёги");
+    std::string title = "Сёги";
+    _window = sf::RenderWindow(sf::VideoMode({600, 800}), sf::String::fromUtf8(title.begin(), title.end()));
     _window.setMinimumSize(sf::Vector2u(480, 600));
 
     view = _window.getDefaultView();
     _window.setView(view);
+
+    _window.setFramerateLimit(30);
 
     _board = board;
 }
@@ -17,20 +20,39 @@ Graphics::Graphics(Board *board)
 void Graphics::redraw()
 {
     auto size = _window.getSize();
-    auto fieldSize = sf::Vector2u(size.x - 2 * BORDER, size.y - BORDER - BOTTOM_BORDER);
-    int rectSize = std::min(fieldSize.x, fieldSize.y);
-    int xPadding = (fieldSize.x - rectSize) / 2;
-    float cellSize = rectSize / 9.0;
+
+    auto fieldSize = sf::Vector2u(size.x - 2 * BORDER, size.y - 2 * BORDER);
+    auto cellSize = std::min((fieldSize.x - 2 * BORDER) / 9,
+                             (fieldSize.y - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
+    int xPadding = (fieldSize.x - cellSize * 9) / 2;
 
     _window.clear(sf::Color(139, 69, 19));
 
+    sf::RectangleShape rect;
+    rect.setFillColor(sf::Color::Transparent);
+    rect.setOutlineColor(sf::Color::Blue);
+    rect.setOutlineThickness(LINE_WIDTH);
+
+    // up reserve
+    rect.setSize({cellSize * 9, cellSize * 2});
+    rect.setPosition({BORDER + xPadding, BORDER});
+    _window.draw(rect);
+
+    // field
+    sf::Vector2f startPoint{BORDER + xPadding, (size.y / 2) - (4.5 * cellSize)};
     for (int i = 0; i <= 9; ++i)
     {
-        drawLine({BORDER + xPadding + cellSize * i, BORDER},
-                 {BORDER + xPadding + cellSize * i, BORDER + rectSize}, 3, sf::Color::White);
-        drawLine({BORDER + xPadding, BORDER + cellSize * i},
-                 {BORDER + xPadding + rectSize, BORDER + cellSize * i}, 3, sf::Color::White);
+        drawLine({startPoint.x + cellSize * i, startPoint.y},
+                 {startPoint.x + cellSize * i, startPoint.y + 9 * cellSize},
+                 LINE_WIDTH, sf::Color::White); // vertical line
+        drawLine({startPoint.x, startPoint.y + cellSize * i},
+                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * i},
+                 LINE_WIDTH, sf::Color::White); // horizontal line
     }
+
+    // down reserve
+    rect.setPosition({BORDER + xPadding, size.y - BORDER - 2 * cellSize});
+    _window.draw(rect);
 
     _window.display();
 }
@@ -57,7 +79,8 @@ int Graphics::getEvents()
     return result;
 }
 
-void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Color color) {
+void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Color color)
+{
     sf::Vector2f direction = end - begin;
     sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
     sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
@@ -65,7 +88,7 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Col
     sf::Vector2f offset = (static_cast<float>(width) / 2.0f) * unitPerpendicular;
 
     sf::VertexArray line(sf::PrimitiveType::TriangleStrip, 4);
-    
+
     line[0].position = begin - offset;
     line[1].position = begin + offset;
     line[2].position = end - offset;
@@ -76,5 +99,5 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Col
     line[2].color = color;
     line[3].color = color;
 
-    _window.draw(line); 
+    _window.draw(line);
 }
