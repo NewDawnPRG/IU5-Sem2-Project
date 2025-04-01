@@ -20,5 +20,5 @@ add_library(${project}
         ${${project}_SOURCE_LIST})
 
 target_link_libraries(${project}
-        PRIVATE sfml-graphics 
+        PRIVATE sfml-graphics board 
 )

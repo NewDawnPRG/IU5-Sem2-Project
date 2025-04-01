@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cmath>
+#include <iostream>
 
 Graphics::Graphics(Board *board)
 {
@@ -27,7 +28,13 @@ void Graphics::redraw()
     int xPadding = (fieldSize.x - cellSize * 9) / 2;
 
     _window.clear(sf::Color(139, 69, 19));
+    drawField(size, cellSize, xPadding);
+    drawFigures(size, cellSize, xPadding);
+    _window.display();
+}
 
+void Graphics::drawField(sf::Vector2u &size, unsigned int &cellSize, int &xPadding)
+{
     sf::RectangleShape rect;
     rect.setFillColor(sf::Color::Transparent);
     rect.setOutlineColor(sf::Color::Blue);
@@ -53,8 +60,28 @@ void Graphics::redraw()
     // down reserve
     rect.setPosition({BORDER + xPadding, size.y - BORDER - 2 * cellSize});
     _window.draw(rect);
+}
 
-    _window.display();
+void Graphics::drawFigures(sf::Vector2u &size, unsigned int &cellSize, int &xPadding)
+{
+    sf::Vector2f startPoint{BORDER + xPadding, (size.y / 2) - (4.5 * cellSize)};
+    for (int x = 0; x < 9; ++x)
+    {
+        for (int y = 0; y < 9; ++y)
+        {
+            int figure = _board->GetCell(y, x);
+            if (std::abs(figure) > 0 && std::abs(figure) < 9)
+            {
+                sf::Texture texture("img/" + figures[figure], false);
+                float scale = static_cast<float>(cellSize) / std::max(texture.getSize().x, texture.getSize().y);
+                sf::Sprite sprite(texture);
+                sprite.setPosition({startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
+                                    startPoint.y + cellSize * y + (cellSize - texture.getSize().y * scale) / 2});
+                sprite.setScale({scale, scale});
+                _window.draw(sprite);
+            }
+        }
+    }
 }
 
 void Graphics::closeWindow()

@@ -4,8 +4,8 @@
 #include "board/board.h"
 
 int main(){
-    Board *board;
     // Sample code
+    Board *board = new Board();
     auto g = Graphics(board);
     
     bool run = true;
