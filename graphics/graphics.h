@@ -10,7 +10,6 @@
 class Graphics {
     sf::RenderWindow _window;
     Board *_board;
-    sf::View view;
 
     sf::Vector2u size;
     float cellSize;
@@ -62,11 +61,15 @@ public:
 private:
     void drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color);
 
+    void drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector2f point3, sf::Color color);
+
     void drawSelection();
 
     void drawField();
 
     void drawFigures();
+
+    void drawCurrentMove();
 
     void updateDrawingValues();
 };

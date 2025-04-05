@@ -9,10 +9,6 @@ Graphics::Graphics(Board *board) {
     _window = sf::RenderWindow(sf::VideoMode({600, 800}),
                                sf::String::fromUtf8(title.begin(), title.end()));
     _window.setMinimumSize(sf::Vector2u(480, 600));
-
-    view = _window.getDefaultView();
-    _window.setView(view);
-
     _window.setFramerateLimit(30);
 
     _board = board;
@@ -25,6 +21,7 @@ void Graphics::redraw() {
     drawField();
     drawSelection();
     drawFigures();
+    drawCurrentMove();
     _window.display();
 }
 
@@ -38,8 +35,9 @@ int Graphics::getEvents() {
         if (event->is<sf::Event::Closed>())
             result += EVENT_CLOSE;
         if (const auto *resized = event->getIf<sf::Event::Resized>()) {
-            view.setSize({(float) resized->size.x, (float) resized->size.y});
-            _window.setView(view);
+            sf::FloatRect r({0, 0},
+                            {(float) resized->size.x, (float) resized->size.y});
+            _window.setView(sf::View(r));
             updateDrawingValues();
         }
     }
@@ -78,6 +76,18 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::C
     line[3].color = color;
 
     _window.draw(line);
+}
+
+void Graphics::drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector2f point3, sf::Color color) {
+    sf::ConvexShape triangle;
+    triangle.setPointCount(3);
+
+    triangle.setPoint(0, point1);
+    triangle.setPoint(1, point2);
+    triangle.setPoint(2, point3);
+
+    triangle.setFillColor(color);
+    _window.draw(triangle);
 }
 
 void Graphics::drawSelection() {
@@ -134,12 +144,25 @@ void Graphics::drawFigures() {
     }
 }
 
+void Graphics::drawCurrentMove() {
+    if (_board->getCurrentMove()) {
+        drawTriangle({endPoint.x + cellSize / 2, endPoint.y - cellSize / 2},
+                     {endPoint.x + cellSize / 6, endPoint.y - cellSize / 6},
+                     {endPoint.x + cellSize * 5 / 6, endPoint.y - cellSize / 6},
+                     sf::Color::Black);
+    } else {
+        drawTriangle({endPoint.x + cellSize / 6, startPoint.y + cellSize / 6},
+                     {endPoint.x + cellSize * 5 / 6, startPoint.y + cellSize / 6},
+                     {endPoint.x + cellSize / 2, startPoint.y + cellSize / 2},
+                     sf::Color::White);
+    }
+}
+
 void Graphics::updateDrawingValues() {
     size = _window.getSize();
-    auto fieldSize = sf::Vector2u(size.x - 2 * BORDER, size.y - 2 * BORDER);
-    cellSize = std::min((fieldSize.x - 2 * BORDER) / 9,
-                        (fieldSize.y - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
-    xPadding = (fieldSize.x - cellSize * 9) / 2;
+    cellSize = std::min((size.x - 2 * BORDER - 2 * BORDER) / 9,
+                        (size.y - 2 * BORDER - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
+    xPadding = (size.x - 2 * BORDER - cellSize * 9) / 2;
     startPoint = {BORDER + xPadding, static_cast<float>((size.y / 2) - (4.5 * cellSize))};
     endPoint = {startPoint.x + 9 * cellSize, startPoint.y + 9 * cellSize};
 }
