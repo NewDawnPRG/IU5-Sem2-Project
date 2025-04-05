@@ -40,21 +40,41 @@ int Graphics::getEvents() {
             _window.setView(sf::View(r));
             updateDrawingValues();
         }
+        if (const auto *released = event->getIf<sf::Event::MouseButtonReleased>()) {
+            if (released->button == sf::Mouse::Button::Left) {
+                onLeftClicked();
+            }
+        }
     }
 
     return result;
 }
 
-void Graphics::processMouse() {
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-        sf::Vector2i pos = sf::Mouse::getPosition(_window);
-        if (startPoint.x <= pos.x && pos.x <= endPoint.x &&
-            startPoint.y <= pos.y && pos.y <= endPoint.y) {
-            _selectedX = (pos.x - startPoint.x) / cellSize;
-            _selectedY = (pos.y - startPoint.y) / cellSize;
+void Graphics::onLeftClicked() {
+    sf::Vector2i pos = sf::Mouse::getPosition(_window);
+    if (startPoint.x <= pos.x && pos.x <= endPoint.x &&
+        startPoint.y <= pos.y && pos.y <= endPoint.y) { // clicked in field
+        int x = (pos.x - startPoint.x) / cellSize, y = (pos.y - startPoint.y) / cellSize;
+        int cell = _board->GetCell(y, x);
+        if (_selectedX == x && _selectedY == y) {
+            _selectedX = -1, _selectedY = -1;
+        } else if (cell > 0 != _board->getCurrentMove() || cell == 0) {
+            // empty cell
+            if (_selectedX != -1 && _selectedY != -1) {
+                _board->SetMove(_selectedY, _selectedX, y, x);
+                _selectedX = -1, _selectedY = -1;
+            }
+        } else if (cell > 0 == _board->getCurrentMove()) {
+            // selected color == move color
+            _selectedX = x, _selectedY = y;
+        } else if (cell > 0 != _board->getCurrentMove()) {
+            // selected color != move color
+            _board->SetMove(_selectedY, _selectedX, y, x);
+            _selectedX = -1, _selectedY = -1;
         }
     }
 }
+
 
 void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color) {
     sf::Vector2f direction = end - begin;
@@ -91,7 +111,7 @@ void Graphics::drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector
 }
 
 void Graphics::drawSelection() {
-    if (_selectedX != -1 && _selectedY != -1 && _board->GetCell(_selectedY, _selectedX) != 0) {
+    if (_selectedX != -1 && _selectedY != -1) {
         sf::RectangleShape rect;
         rect.setSize({cellSize, cellSize});
         rect.setPosition({startPoint.x + cellSize * (float) _selectedX,

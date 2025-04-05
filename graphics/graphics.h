@@ -56,7 +56,7 @@ public:
 
     int getEvents();
 
-    void processMouse();
+    void onLeftClicked();
 
 private:
     void drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color);

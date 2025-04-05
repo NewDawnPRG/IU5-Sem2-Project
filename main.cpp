@@ -11,7 +11,6 @@ int main(){
     int events = g.getEvents();
     while ((events & g.EVENT_CLOSE) != 1) {
         events = g.getEvents();
-        g.processMouse();
         g.redraw();
     }
     g.closeWindow();
