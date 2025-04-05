@@ -13,13 +13,17 @@ class Graphics {
     sf::View view;
 
     sf::Vector2u size;
-    unsigned int cellSize;
-    int xPadding;
+    float cellSize;
+    float xPadding;
     sf::Vector2f startPoint;
+    sf::Vector2f endPoint;
 
-    const int LINE_WIDTH = 2;
-    const int BORDER = 30;
-    const int RESERVE_BORDER = 30;
+    const float LINE_WIDTH = 2;
+    const float BORDER = 30;
+    const float RESERVE_BORDER = 30;
+
+    const sf::Color clrBackground{130, 69, 19};
+    const sf::Color clrSelection{48, 24, 7};
 
     std::map<int, std::string> figures = {
             {8,  "BOU.png"}, // Чёрный король
@@ -56,7 +60,9 @@ public:
     void processMouse();
 
 private:
-    void drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Color color);
+    void drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color);
+
+    void drawSelection();
 
     void drawField();
 

@@ -6,7 +6,8 @@
 
 Graphics::Graphics(Board *board) {
     std::string title = "Сёги";
-    _window = sf::RenderWindow(sf::VideoMode({600, 800}), sf::String::fromUtf8(title.begin(), title.end()));
+    _window = sf::RenderWindow(sf::VideoMode({600, 800}),
+                               sf::String::fromUtf8(title.begin(), title.end()));
     _window.setMinimumSize(sf::Vector2u(480, 600));
 
     view = _window.getDefaultView();
@@ -20,8 +21,9 @@ Graphics::Graphics(Board *board) {
 }
 
 void Graphics::redraw() {
-    _window.clear(sf::Color(139, 69, 19));
+    _window.clear(clrBackground);
     drawField();
+    drawSelection();
     drawFigures();
     _window.display();
 }
@@ -36,8 +38,8 @@ int Graphics::getEvents() {
         if (event->is<sf::Event::Closed>())
             result += EVENT_CLOSE;
         if (const auto *resized = event->getIf<sf::Event::Resized>()) {
-            sf::FloatRect view({0, 0}, {resized->size.x, resized->size.y});
-            _window.setView(sf::View(view));
+            view.setSize({(float) resized->size.x, (float) resized->size.y});
+            _window.setView(view);
             updateDrawingValues();
         }
     }
@@ -48,10 +50,15 @@ int Graphics::getEvents() {
 void Graphics::processMouse() {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         sf::Vector2i pos = sf::Mouse::getPosition(_window);
+        if (startPoint.x <= pos.x && pos.x <= endPoint.x &&
+            startPoint.y <= pos.y && pos.y <= endPoint.y) {
+            _selectedX = (pos.x - startPoint.x) / cellSize;
+            _selectedY = (pos.y - startPoint.y) / cellSize;
+        }
     }
 }
 
-void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Color color) {
+void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color) {
     sf::Vector2f direction = end - begin;
     sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
     sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
@@ -73,6 +80,17 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Col
     _window.draw(line);
 }
 
+void Graphics::drawSelection() {
+    if (_selectedX != -1 && _selectedY != -1 && _board->GetCell(_selectedY, _selectedX) != 0) {
+        sf::RectangleShape rect;
+        rect.setSize({cellSize, cellSize});
+        rect.setPosition({startPoint.x + cellSize * (float) _selectedX,
+                          startPoint.y + cellSize * (float) _selectedY});
+        rect.setFillColor(clrSelection);
+        _window.draw(rect);
+    }
+}
+
 void Graphics::drawField() {
     sf::RectangleShape rect;
     rect.setFillColor(sf::Color::Transparent);
@@ -86,16 +104,16 @@ void Graphics::drawField() {
 
     // field
     for (int i = 0; i <= 9; ++i) {
-        drawLine({startPoint.x + cellSize * i, startPoint.y},
-                 {startPoint.x + cellSize * i, startPoint.y + 9 * cellSize},
+        drawLine({startPoint.x + cellSize * (float) i, startPoint.y},
+                 {startPoint.x + cellSize * (float) i, startPoint.y + 9 * cellSize},
                  LINE_WIDTH, sf::Color::White); // vertical line
-        drawLine({startPoint.x, startPoint.y + cellSize * i},
-                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * i},
+        drawLine({startPoint.x, startPoint.y + cellSize * (float) i},
+                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * (float) i},
                  LINE_WIDTH, sf::Color::White); // horizontal line
     }
 
     // down reserve
-    rect.setPosition({BORDER + xPadding, size.y - BORDER - 2 * cellSize});
+    rect.setPosition({BORDER + xPadding, (float) size.y - BORDER - 2 * cellSize});
     _window.draw(rect);
 }
 
@@ -120,7 +138,8 @@ void Graphics::updateDrawingValues() {
     size = _window.getSize();
     auto fieldSize = sf::Vector2u(size.x - 2 * BORDER, size.y - 2 * BORDER);
     cellSize = std::min((fieldSize.x - 2 * BORDER) / 9,
-                             (fieldSize.y - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
+                        (fieldSize.y - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
     xPadding = (fieldSize.x - cellSize * 9) / 2;
-    startPoint = {BORDER + xPadding, (size.y / 2) - (4.5 * cellSize)};
+    startPoint = {BORDER + xPadding, static_cast<float>((size.y / 2) - (4.5 * cellSize))};
+    endPoint = {startPoint.x + 9 * cellSize, startPoint.y + 9 * cellSize};
 }
