@@ -122,7 +122,7 @@ void Graphics::drawFigures() {
         for (int y = 0; y < 9; ++y) {
             int figure = _board->GetCell(y, x);
             if (std::abs(figure) > 0 && std::abs(figure) < 9) {
-                sf::Texture texture("img/" + figures[figure], false);
+                sf::Texture texture("img/figures/" + figures[figure], false);
                 float scale = static_cast<float>(cellSize) / std::max(texture.getSize().x, texture.getSize().y);
                 sf::Sprite sprite(texture);
                 sprite.setPosition({startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
