@@ -15,65 +15,15 @@ Graphics::Graphics(Board *board) {
     _window.setFramerateLimit(30);
 
     _board = board;
+
+    updateDrawingValues();
 }
 
 void Graphics::redraw() {
-    auto size = _window.getSize();
-
-    auto fieldSize = sf::Vector2u(size.x - 2 * BORDER, size.y - 2 * BORDER);
-    auto cellSize = std::min((fieldSize.x - 2 * BORDER) / 9,
-                             (fieldSize.y - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
-    int xPadding = (fieldSize.x - cellSize * 9) / 2;
-
     _window.clear(sf::Color(139, 69, 19));
-    drawField(size, cellSize, xPadding);
-    drawFigures(size, cellSize, xPadding);
+    drawField();
+    drawFigures();
     _window.display();
-}
-
-void Graphics::drawField(sf::Vector2u &size, unsigned int &cellSize, int &xPadding) {
-    sf::RectangleShape rect;
-    rect.setFillColor(sf::Color::Transparent);
-    rect.setOutlineColor(sf::Color::Blue);
-    rect.setOutlineThickness(LINE_WIDTH);
-
-    // up reserve
-    rect.setSize({cellSize * 9, cellSize * 2});
-    rect.setPosition({BORDER + xPadding, BORDER});
-    _window.draw(rect);
-
-    // field
-    sf::Vector2f startPoint{BORDER + xPadding, (size.y / 2) - (4.5 * cellSize)};
-    for (int i = 0; i <= 9; ++i) {
-        drawLine({startPoint.x + cellSize * i, startPoint.y},
-                 {startPoint.x + cellSize * i, startPoint.y + 9 * cellSize},
-                 LINE_WIDTH, sf::Color::White); // vertical line
-        drawLine({startPoint.x, startPoint.y + cellSize * i},
-                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * i},
-                 LINE_WIDTH, sf::Color::White); // horizontal line
-    }
-
-    // down reserve
-    rect.setPosition({BORDER + xPadding, size.y - BORDER - 2 * cellSize});
-    _window.draw(rect);
-}
-
-void Graphics::drawFigures(sf::Vector2u &size, unsigned int &cellSize, int &xPadding) {
-    sf::Vector2f startPoint{BORDER + xPadding, (size.y / 2) - (4.5 * cellSize)};
-    for (int x = 0; x < 9; ++x) {
-        for (int y = 0; y < 9; ++y) {
-            int figure = _board->GetCell(y, x);
-            if (std::abs(figure) > 0 && std::abs(figure) < 9) {
-                sf::Texture texture("img/" + figures[figure], false);
-                float scale = static_cast<float>(cellSize) / std::max(texture.getSize().x, texture.getSize().y);
-                sf::Sprite sprite(texture);
-                sprite.setPosition({startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
-                                    startPoint.y + cellSize * y + (cellSize - texture.getSize().y * scale) / 2});
-                sprite.setScale({scale, scale});
-                _window.draw(sprite);
-            }
-        }
-    }
 }
 
 void Graphics::closeWindow() {
@@ -88,10 +38,17 @@ int Graphics::getEvents() {
         if (const auto *resized = event->getIf<sf::Event::Resized>()) {
             sf::FloatRect view({0, 0}, {resized->size.x, resized->size.y});
             _window.setView(sf::View(view));
+            updateDrawingValues();
         }
     }
 
     return result;
+}
+
+void Graphics::processMouse() {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        sf::Vector2i pos = sf::Mouse::getPosition(_window);
+    }
 }
 
 void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Color color) {
@@ -114,4 +71,56 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Col
     line[3].color = color;
 
     _window.draw(line);
+}
+
+void Graphics::drawField() {
+    sf::RectangleShape rect;
+    rect.setFillColor(sf::Color::Transparent);
+    rect.setOutlineColor(sf::Color::Blue);
+    rect.setOutlineThickness(LINE_WIDTH);
+
+    // up reserve
+    rect.setSize({cellSize * 9, cellSize * 2});
+    rect.setPosition({BORDER + xPadding, BORDER});
+    _window.draw(rect);
+
+    // field
+    for (int i = 0; i <= 9; ++i) {
+        drawLine({startPoint.x + cellSize * i, startPoint.y},
+                 {startPoint.x + cellSize * i, startPoint.y + 9 * cellSize},
+                 LINE_WIDTH, sf::Color::White); // vertical line
+        drawLine({startPoint.x, startPoint.y + cellSize * i},
+                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * i},
+                 LINE_WIDTH, sf::Color::White); // horizontal line
+    }
+
+    // down reserve
+    rect.setPosition({BORDER + xPadding, size.y - BORDER - 2 * cellSize});
+    _window.draw(rect);
+}
+
+void Graphics::drawFigures() {
+    for (int x = 0; x < 9; ++x) {
+        for (int y = 0; y < 9; ++y) {
+            int figure = _board->GetCell(y, x);
+            if (std::abs(figure) > 0 && std::abs(figure) < 9) {
+                sf::Texture texture("img/" + figures[figure], false);
+                float scale = static_cast<float>(cellSize) / std::max(texture.getSize().x, texture.getSize().y);
+                sf::Sprite sprite(texture);
+                sprite.setPosition({startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
+                                    startPoint.y + cellSize * y + (cellSize - texture.getSize().y * scale) / 2});
+                sprite.setScale({scale, scale});
+                _window.draw(sprite);
+            }
+        }
+    }
+}
+
+void Graphics::updateDrawingValues() {
+    size = _window.getSize();
+    auto fieldSize = sf::Vector2u(size.x - 2 * BORDER, size.y - 2 * BORDER);
+    cellSize = std::min((fieldSize.x - 2 * BORDER) / 9,
+                             (fieldSize.y - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
+    xPadding = (fieldSize.x - cellSize * 9) / 2;
+    startPoint = {BORDER + xPadding, (size.y / 2) - (4.5 * cellSize)};
 }

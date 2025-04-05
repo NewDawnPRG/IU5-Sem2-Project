@@ -12,6 +12,11 @@ class Graphics {
     Board *_board;
     sf::View view;
 
+    sf::Vector2u size;
+    unsigned int cellSize;
+    int xPadding;
+    sf::Vector2f startPoint;
+
     const int LINE_WIDTH = 2;
     const int BORDER = 30;
     const int RESERVE_BORDER = 30;
@@ -34,6 +39,8 @@ class Graphics {
             {-7, "WHI.png"},  // Белая ладья
             {-8, "WOU.png"}   // Белый король
     };
+    int _selectedX = -1;
+    int _selectedY = -1;
 
 public:
     Graphics(Board *board);
@@ -46,12 +53,16 @@ public:
 
     int getEvents();
 
+    void processMouse();
+
 private:
     void drawLine(sf::Vector2f begin, sf::Vector2f end, int width, sf::Color color);
 
-    void drawField(sf::Vector2u &size, unsigned int &cellSize, int &xPadding);
+    void drawField();
 
-    void drawFigures(sf::Vector2u &size, unsigned int &cellSize, int &xPadding);
+    void drawFigures();
+
+    void updateDrawingValues();
 };
 
 #endif // GRAPHICS_H
