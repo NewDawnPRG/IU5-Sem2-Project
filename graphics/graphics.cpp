@@ -36,7 +36,7 @@ int Graphics::getEvents() {
             result += EVENT_CLOSE;
         if (const auto *resized = event->getIf<sf::Event::Resized>()) {
             sf::FloatRect r({0, 0},
-                            {(float) resized->size.x, (float) resized->size.y});
+                            {resized->size.x, resized->size.y});
             _window.setView(sf::View(r));
             updateDrawingValues();
         }
@@ -53,7 +53,8 @@ int Graphics::getEvents() {
 void Graphics::onLeftClicked() {
     sf::Vector2i pos = sf::Mouse::getPosition(_window);
     if (startPoint.x <= pos.x && pos.x <= endPoint.x &&
-        startPoint.y <= pos.y && pos.y <= endPoint.y) { // clicked in field
+        startPoint.y <= pos.y && pos.y <= endPoint.y) {
+        // clicked in field
         int x = (pos.x - startPoint.x) / cellSize, y = (pos.y - startPoint.y) / cellSize;
         int cell = _board->GetCell(y, x);
         if (_selectedX == x && _selectedY == y) {
@@ -72,6 +73,15 @@ void Graphics::onLeftClicked() {
             _board->SetMove(_selectedY, _selectedX, y, x);
             _selectedX = -1, _selectedY = -1;
         }
+    } else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
+               BORDER <= pos.y && pos.y <= BORDER + cellSize * 2) {
+        // clicked on up reserve
+        std::cout << "Clicked on up reserve\n";
+    } else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
+               static_cast<float>(size.y) - BORDER - 2 * cellSize <= pos.y &
+               pos.y <= static_cast<float>(size.y) - BORDER - 2 * cellSize + 9 * cellSize) {
+        // clicked on down reserve
+        std::cout << "Clicked on down reserve\n";
     }
 }
 
@@ -81,7 +91,7 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::C
     sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
     sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
 
-    sf::Vector2f offset = (static_cast<float>(width) / 2.0f) * unitPerpendicular;
+    sf::Vector2f offset = width / 2 * unitPerpendicular;
 
     sf::VertexArray line(sf::PrimitiveType::TriangleStrip, 4);
 
@@ -114,8 +124,10 @@ void Graphics::drawSelection() {
     if (_selectedX != -1 && _selectedY != -1) {
         sf::RectangleShape rect;
         rect.setSize({cellSize, cellSize});
-        rect.setPosition({startPoint.x + cellSize * (float) _selectedX,
-                          startPoint.y + cellSize * (float) _selectedY});
+        rect.setPosition({
+            startPoint.x + cellSize * static_cast<float>(_selectedX),
+            startPoint.y + cellSize * static_cast<float>(_selectedY)
+        });
         rect.setFillColor(clrSelection);
         _window.draw(rect);
     }
@@ -143,7 +155,7 @@ void Graphics::drawField() {
     }
 
     // down reserve
-    rect.setPosition({BORDER + xPadding, (float) size.y - BORDER - 2 * cellSize});
+    rect.setPosition({BORDER + xPadding, static_cast<float>(size.y) - BORDER - 2 * cellSize});
     _window.draw(rect);
 }
 
@@ -155,8 +167,10 @@ void Graphics::drawFigures() {
                 sf::Texture texture("img/figures/" + figures[figure], false);
                 float scale = static_cast<float>(cellSize) / std::max(texture.getSize().x, texture.getSize().y);
                 sf::Sprite sprite(texture);
-                sprite.setPosition({startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
-                                    startPoint.y + cellSize * y + (cellSize - texture.getSize().y * scale) / 2});
+                sprite.setPosition({
+                    startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
+                    startPoint.y + cellSize * y + (cellSize - texture.getSize().y * scale) / 2
+                });
                 sprite.setScale({scale, scale});
                 _window.draw(sprite);
             }
