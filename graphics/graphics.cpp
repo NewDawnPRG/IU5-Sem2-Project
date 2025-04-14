@@ -36,7 +36,7 @@ int Graphics::getEvents() {
             result += EVENT_CLOSE;
         if (const auto *resized = event->getIf<sf::Event::Resized>()) {
             sf::FloatRect r({0, 0},
-                            {resized->size.x, resized->size.y});
+                            {static_cast<float>(resized->size.x), static_cast<float>(resized->size.y)});
             _window.setView(sf::View(r));
             updateDrawingValues();
         }
@@ -83,6 +83,18 @@ void Graphics::onLeftClicked() {
         // clicked on down reserve
         std::cout << "Clicked on down reserve\n";
     }
+}
+
+void Graphics::drawFigure(const sf::Vector2f &position, const int &figure) {
+    const sf::Texture texture("img/figures/" + figures[figure], false);
+    float scale = cellSize / std::max(texture.getSize().x, texture.getSize().y);
+    sf::Sprite sprite(texture);
+    sprite.setPosition({
+        position.x + (cellSize - texture.getSize().x * scale) / 2,
+        position.y + (cellSize - texture.getSize().y * scale) / 2
+    });
+    sprite.setScale({scale, scale});
+    _window.draw(sprite);
 }
 
 
@@ -160,20 +172,37 @@ void Graphics::drawField() {
 }
 
 void Graphics::drawFigures() {
+    // drawing figures on field
     for (int x = 0; x < 9; ++x) {
         for (int y = 0; y < 9; ++y) {
             int figure = _board->GetCell(y, x);
             if (std::abs(figure) > 0 && std::abs(figure) < 9) {
-                sf::Texture texture("img/figures/" + figures[figure], false);
-                float scale = static_cast<float>(cellSize) / std::max(texture.getSize().x, texture.getSize().y);
-                sf::Sprite sprite(texture);
-                sprite.setPosition({
-                    startPoint.x + cellSize * x + (cellSize - texture.getSize().x * scale) / 2,
-                    startPoint.y + cellSize * y + (cellSize - texture.getSize().y * scale) / 2
-                });
-                sprite.setScale({scale, scale});
-                _window.draw(sprite);
+                drawFigure({startPoint.x + cellSize * x, startPoint.y + cellSize * y},
+                           figure);
             }
+        }
+    }
+
+    // drawing figures on up reverse
+    int num = 0;
+    for (int i = 0; i < 19; ++i) {
+        if (_board->getCapturedBlack()[i] != 0) {
+            drawFigure({BORDER + xPadding + cellSize * (num % 9), BORDER + cellSize * (num / 9)},
+                       _board->getCapturedBlack()[i]);
+            ++num;
+        }
+    }
+
+    // drawing figures on down reverse
+    num = 0;
+    for (int i = 0; i < 19; ++i) {
+        if (_board->getCapturedWhite()[i] != 0) {
+            drawFigure({
+                           BORDER + xPadding + cellSize * (num % 9),
+                           static_cast<float>(size.y) - BORDER - 2 * cellSize + cellSize * (num / 9)
+                       },
+                       _board->getCapturedWhite()[i]);
+            ++num;
         }
     }
 }
