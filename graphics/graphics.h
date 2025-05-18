@@ -7,9 +7,13 @@
 
 #include <map>
 
-class Graphics {
+#include "../piece/piece.h"
+
+class Graphics
+{
     sf::RenderWindow _window;
-    Board *_board;
+    Board* _board;
+    Piece* _piece;
 
     sf::Vector2u size;
     float cellSize;
@@ -46,7 +50,7 @@ class Graphics {
     int _selectedY = -1;
 
 public:
-    Graphics(Board *board);
+    Graphics(Board* board);
 
     const int EVENT_CLOSE = 0x1;
 
@@ -63,7 +67,7 @@ private:
 
     void drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector2f point3, sf::Color color);
 
-    void drawFigure(const sf::Vector2f &position, const int &figure);
+    void drawFigure(const sf::Vector2f& position, const int& figure);
 
     void drawSelection();
 
@@ -74,6 +78,8 @@ private:
     void drawCurrentMove();
 
     void updateDrawingValues();
+
+    void move(int newInd1, int newInd2);
 };
 
 #endif // GRAPHICS_H

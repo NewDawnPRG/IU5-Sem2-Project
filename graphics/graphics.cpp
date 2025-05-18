@@ -4,7 +4,8 @@
 #include <cmath>
 #include <iostream>
 
-Graphics::Graphics(Board *board) {
+Graphics::Graphics(Board* board)
+{
     std::string title = "Сёги";
     _window = sf::RenderWindow(sf::VideoMode({600, 800}),
                                sf::String::fromUtf8(title.begin(), title.end()));
@@ -12,11 +13,13 @@ Graphics::Graphics(Board *board) {
     _window.setFramerateLimit(30);
 
     _board = board;
+    _piece = new Piece(board);
 
     updateDrawingValues();
 }
 
-void Graphics::redraw() {
+void Graphics::redraw()
+{
     _window.clear(clrBackground);
     drawField();
     drawSelection();
@@ -25,23 +28,29 @@ void Graphics::redraw() {
     _window.display();
 }
 
-void Graphics::closeWindow() {
+void Graphics::closeWindow()
+{
     _window.close();
 }
 
-int Graphics::getEvents() {
+int Graphics::getEvents()
+{
     int result = 0;
-    while (const std::optional event = _window.pollEvent()) {
+    while (const std::optional event = _window.pollEvent())
+    {
         if (event->is<sf::Event::Closed>())
             result += EVENT_CLOSE;
-        if (const auto *resized = event->getIf<sf::Event::Resized>()) {
+        if (const auto* resized = event->getIf<sf::Event::Resized>())
+        {
             sf::FloatRect r({0, 0},
                             {static_cast<float>(resized->size.x), static_cast<float>(resized->size.y)});
             _window.setView(sf::View(r));
             updateDrawingValues();
         }
-        if (const auto *released = event->getIf<sf::Event::MouseButtonReleased>()) {
-            if (released->button == sf::Mouse::Button::Left) {
+        if (const auto* released = event->getIf<sf::Event::MouseButtonReleased>())
+        {
+            if (released->button == sf::Mouse::Button::Left)
+            {
                 onLeftClicked();
             }
         }
@@ -50,42 +59,55 @@ int Graphics::getEvents() {
     return result;
 }
 
-void Graphics::onLeftClicked() {
+void Graphics::onLeftClicked()
+{
     sf::Vector2i pos = sf::Mouse::getPosition(_window);
     if (startPoint.x <= pos.x && pos.x <= endPoint.x &&
-        startPoint.y <= pos.y && pos.y <= endPoint.y) {
+        startPoint.y <= pos.y && pos.y <= endPoint.y)
+    {
         // clicked in field
         int x = (pos.x - startPoint.x) / cellSize, y = (pos.y - startPoint.y) / cellSize;
         int cell = _board->GetCell(y, x);
-        if (_selectedX == x && _selectedY == y) {
-            _selectedX = -1, _selectedY = -1;
-        } else if (cell > 0 != _board->getCurrentMove() || cell == 0) {
-            // empty cell
-            if (_selectedX != -1 && _selectedY != -1) {
-                _board->SetMove(_selectedY, _selectedX, y, x);
-                _selectedX = -1, _selectedY = -1;
-            }
-        } else if (cell > 0 == _board->getCurrentMove()) {
-            // selected color == move color
-            _selectedX = x, _selectedY = y;
-        } else if (cell > 0 != _board->getCurrentMove()) {
-            // selected color != move color
-            _board->SetMove(_selectedY, _selectedX, y, x);
+        if (_selectedX == x && _selectedY == y)
+        {
             _selectedX = -1, _selectedY = -1;
         }
-    } else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
-               BORDER <= pos.y && pos.y <= BORDER + cellSize * 2) {
+        else if (cell > 0 != _board->getCurrentMove() || cell == 0)
+        {
+            // empty cell
+            if (_selectedX != -1 && _selectedY != -1)
+            {
+                move(y, x);
+            }
+        }
+        else if (cell > 0 == _board->getCurrentMove())
+        {
+            // selected color == move color
+            _selectedX = x, _selectedY = y;
+        }
+        else if (cell > 0 != _board->getCurrentMove())
+        {
+            // selected color != move color
+            move(y, x);
+        }
+    }
+    else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
+        BORDER <= pos.y && pos.y <= BORDER + cellSize * 2)
+    {
         // clicked on up reserve
         std::cout << "Clicked on up reserve\n";
-    } else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
-               static_cast<float>(size.y) - BORDER - 2 * cellSize <= pos.y &
-               pos.y <= static_cast<float>(size.y) - BORDER - 2 * cellSize + 9 * cellSize) {
+    }
+    else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
+        static_cast<float>(size.y) - BORDER - 2 * cellSize <= pos.y &
+        pos.y <= static_cast<float>(size.y) - BORDER - 2 * cellSize + 9 * cellSize)
+    {
         // clicked on down reserve
         std::cout << "Clicked on down reserve\n";
     }
 }
 
-void Graphics::drawFigure(const sf::Vector2f &position, const int &figure) {
+void Graphics::drawFigure(const sf::Vector2f& position, const int& figure)
+{
     const sf::Texture texture("img/figures/" + figures[figure], false);
     float scale = cellSize / std::max(texture.getSize().x, texture.getSize().y);
     sf::Sprite sprite(texture);
@@ -97,8 +119,8 @@ void Graphics::drawFigure(const sf::Vector2f &position, const int &figure) {
     _window.draw(sprite);
 }
 
-
-void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color) {
+void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::Color color)
+{
     sf::Vector2f direction = end - begin;
     sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
     sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
@@ -120,7 +142,8 @@ void Graphics::drawLine(sf::Vector2f begin, sf::Vector2f end, float width, sf::C
     _window.draw(line);
 }
 
-void Graphics::drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector2f point3, sf::Color color) {
+void Graphics::drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector2f point3, sf::Color color)
+{
     sf::ConvexShape triangle;
     triangle.setPointCount(3);
 
@@ -132,8 +155,10 @@ void Graphics::drawTriangle(sf::Vector2f point1, sf::Vector2f point2, sf::Vector
     _window.draw(triangle);
 }
 
-void Graphics::drawSelection() {
-    if (_selectedX != -1 && _selectedY != -1) {
+void Graphics::drawSelection()
+{
+    if (_selectedX != -1 && _selectedY != -1)
+    {
         sf::RectangleShape rect;
         rect.setSize({cellSize, cellSize});
         rect.setPosition({
@@ -145,7 +170,8 @@ void Graphics::drawSelection() {
     }
 }
 
-void Graphics::drawField() {
+void Graphics::drawField()
+{
     sf::RectangleShape rect;
     rect.setFillColor(sf::Color::Transparent);
     rect.setOutlineColor(sf::Color::Blue);
@@ -157,12 +183,13 @@ void Graphics::drawField() {
     _window.draw(rect);
 
     // field
-    for (int i = 0; i <= 9; ++i) {
-        drawLine({startPoint.x + cellSize * (float) i, startPoint.y},
-                 {startPoint.x + cellSize * (float) i, startPoint.y + 9 * cellSize},
+    for (int i = 0; i <= 9; ++i)
+    {
+        drawLine({startPoint.x + cellSize * (float)i, startPoint.y},
+                 {startPoint.x + cellSize * (float)i, startPoint.y + 9 * cellSize},
                  LINE_WIDTH, sf::Color::White); // vertical line
-        drawLine({startPoint.x, startPoint.y + cellSize * (float) i},
-                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * (float) i},
+        drawLine({startPoint.x, startPoint.y + cellSize * (float)i},
+                 {startPoint.x + 9 * cellSize, startPoint.y + cellSize * (float)i},
                  LINE_WIDTH, sf::Color::White); // horizontal line
     }
 
@@ -171,12 +198,16 @@ void Graphics::drawField() {
     _window.draw(rect);
 }
 
-void Graphics::drawFigures() {
+void Graphics::drawFigures()
+{
     // drawing figures on field
-    for (int x = 0; x < 9; ++x) {
-        for (int y = 0; y < 9; ++y) {
+    for (int x = 0; x < 9; ++x)
+    {
+        for (int y = 0; y < 9; ++y)
+        {
             int figure = _board->GetCell(y, x);
-            if (std::abs(figure) > 0 && std::abs(figure) < 9) {
+            if (std::abs(figure) > 0 && std::abs(figure) < 9)
+            {
                 drawFigure({startPoint.x + cellSize * x, startPoint.y + cellSize * y},
                            figure);
             }
@@ -185,8 +216,10 @@ void Graphics::drawFigures() {
 
     // drawing figures on up reverse
     int num = 0;
-    for (int i = 0; i < 19; ++i) {
-        if (_board->getCapturedBlack()[i] != 0) {
+    for (int i = 0; i < 19; ++i)
+    {
+        if (_board->getCapturedBlack()[i] != 0)
+        {
             drawFigure({BORDER + xPadding + cellSize * (num % 9), BORDER + cellSize * (num / 9)},
                        _board->getCapturedBlack()[i]);
             ++num;
@@ -195,8 +228,10 @@ void Graphics::drawFigures() {
 
     // drawing figures on down reverse
     num = 0;
-    for (int i = 0; i < 19; ++i) {
-        if (_board->getCapturedWhite()[i] != 0) {
+    for (int i = 0; i < 19; ++i)
+    {
+        if (_board->getCapturedWhite()[i] != 0)
+        {
             drawFigure({
                            BORDER + xPadding + cellSize * (num % 9),
                            static_cast<float>(size.y) - BORDER - 2 * cellSize + cellSize * (num / 9)
@@ -207,13 +242,17 @@ void Graphics::drawFigures() {
     }
 }
 
-void Graphics::drawCurrentMove() {
-    if (_board->getCurrentMove()) {
+void Graphics::drawCurrentMove()
+{
+    if (_board->getCurrentMove())
+    {
         drawTriangle({endPoint.x + cellSize / 2, endPoint.y - cellSize / 2},
                      {endPoint.x + cellSize / 6, endPoint.y - cellSize / 6},
                      {endPoint.x + cellSize * 5 / 6, endPoint.y - cellSize / 6},
                      sf::Color::Black);
-    } else {
+    }
+    else
+    {
         drawTriangle({endPoint.x + cellSize / 6, startPoint.y + cellSize / 6},
                      {endPoint.x + cellSize * 5 / 6, startPoint.y + cellSize / 6},
                      {endPoint.x + cellSize / 2, startPoint.y + cellSize / 2},
@@ -221,11 +260,22 @@ void Graphics::drawCurrentMove() {
     }
 }
 
-void Graphics::updateDrawingValues() {
+void Graphics::updateDrawingValues()
+{
     size = _window.getSize();
     cellSize = std::min((size.x - 2 * BORDER - 2 * BORDER) / 9,
                         (size.y - 2 * BORDER - 2 * BORDER - 2 * RESERVE_BORDER) / 13);
     xPadding = (size.x - 2 * BORDER - cellSize * 9) / 2;
     startPoint = {BORDER + xPadding, static_cast<float>((size.y / 2) - (4.5 * cellSize))};
     endPoint = {startPoint.x + 9 * cellSize, startPoint.y + 9 * cellSize};
+}
+
+void Graphics::move(int y, int x)
+{
+    if (_piece->checkMove(_selectedY, _selectedX, y, x,
+                          abs(_board->GetCell(_selectedY, _selectedX))))
+    {
+        _board->SetMove(_selectedY, _selectedX, y, x);
+        _selectedX = -1, _selectedY = -1;
+    }
 }

@@ -7,13 +7,14 @@ find_package(SFML REQUIRED COMPONENTS Graphics Window System)
 
 add_subdirectory(board)
 add_subdirectory(graphics)
+add_subdirectory(piece)
 
 add_executable(${PROJECT_NAME} 
     main.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 
-    PRIVATE graphics board
+    PRIVATE graphics board piece
     sfml-graphics 
     sfml-window 
     sfml-system

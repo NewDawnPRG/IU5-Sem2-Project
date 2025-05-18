@@ -10,6 +10,7 @@ public:
 	Piece(Board *board);
 	~Piece();
 
+	bool checkMove(int sp1, int sp2, int fp1, int fp2, int figure);
     bool pawn(int sp1, int sp2, int fp1, int fp2, bool move);
 	bool bishop(int sp1, int sp2, int fp1, int fp2, bool move);
 	bool rook(int sp1, int sp2, int fp1, int fp2, bool move);
