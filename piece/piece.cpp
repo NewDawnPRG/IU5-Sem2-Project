@@ -38,14 +38,14 @@ bool Piece::pawn(int sp1, int sp2, int fp1, int fp2, bool m)
         // Чёрные
         if (sp1 != fp1 + 1) return false;
         int cell = _board->GetCell(fp1, fp2);
-        if (cell < 0) return false; // Своя фигура
+        if (cell > 0 || cell = -8) return false; // Своя фигура
     }
     else
     {
         // Белые
         if (sp1 != fp1 - 1) return false;
         int cell = _board->GetCell(fp1, fp2);
-        if (cell > 0) return false; // Своя фигура
+        if (cell < 0 || cell = 8) return false; // Своя фигура
     }
     return true;
 }
@@ -92,14 +92,14 @@ bool Piece::spear(int sp1, int sp2, int fp1, int fp2, bool m)
 {
     if (sp2 != fp2) return false;
     int delta = fp1 - sp1;
-    if ((m && delta <= 0) || (!m && delta >= 0)) return false;
+    if ((m && delta >= 0) || (!m && delta <= 0)) return false;
     int step = (delta > 0) ? 1 : -1;
     for (int x = sp1 + step; x != fp1; x += step)
     {
         if (_board->GetCell(x, sp2) != 0) return false;
     }
     int target = _board->GetCell(fp1, fp2);
-    return (m && target <= 0) || (!m && target >= 0);
+    return (m && target >= 0) || (!m && target <= 0);
 }
 
 bool Piece::knight(int sp1, int sp2, int fp1, int fp2, bool m)
