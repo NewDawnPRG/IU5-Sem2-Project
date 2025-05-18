@@ -13,17 +13,17 @@ bool Piece::checkMove(int sp1, int sp2, int fp1, int fp2, int figure)
 {
     if (figure == 1) // Пешка
         return pawn(sp1, sp2, fp1, fp2, _board->getCurrentMove());
-    if (figure == 2) // Копьё
+    if (figure == 4) // Копьё
         return spear(sp1, sp2, fp1, fp2, _board->getCurrentMove());
-    if (figure == 3) // Конь
+    if (figure == 5) // Конь
         return knight(sp1, sp2, fp1, fp2, _board->getCurrentMove());
-    if (figure == 4) // Серебрянный конь
+    if (figure == 6) // Серебрянный конь
         return silver(sp1, sp2, fp1, fp2, _board->getCurrentMove());
-    if (figure == 5) // Золотой конь
+    if (figure == 7) // Золотой конь
         return gold(sp1, sp2, fp1, fp2, _board->getCurrentMove());
-    if (figure == 6) // Слон
+    if (figure == 2) // Слон
         return bishop(sp1, sp2, fp1, fp2, _board->getCurrentMove());
-    if (figure == 7) // Ладья
+    if (figure == 3) // Ладья
         return rook(sp1, sp2, fp1, fp2, _board->getCurrentMove());
     if (figure == 8) // Король
         return king(sp1, sp2, fp1, fp2, _board->getCurrentMove());
