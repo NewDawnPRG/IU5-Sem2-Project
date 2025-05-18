@@ -86,14 +86,324 @@ void Board::CheckCheck() {
     FindKing(ind1, ind2);
     if (currentMove_) {
         // если ход черных
-        if (ind2 + 1 < 10) {
-            if ((boardMas_[ind1][ind2 + 1] == 1) || (boardMas_[ind1][ind2 + 1] == 3) ||
-                (boardMas_[ind1][ind2 + 1] == 4) || (boardMas_[ind1][ind2 + 1] == 6) ||
-                (boardMas_[ind1][ind2 + 1] == 7)) {
+        // Проверка соседних клеток
+        // Вправо (j+1)
+        if (ind2 + 1 < 9) {
+            int cell = boardMas_[ind1][ind2 + 1];
+            if (cell == 1 || cell == 3 || cell == 4 || cell == 6 || cell == 7) {
                 checkWhite_ = true;
+                return;
             }
         }
+        // Влево (j-1)
+        if (ind2 - 1 >= 0) {
+            int cell = boardMas_[ind1][ind2 - 1];
+            if (cell == 3 || cell == 4 || cell == 6 || cell == 7) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Вверх (i-1, j)
+        if (ind1 - 1 >= 0) {
+            int cell = boardMas_[ind1 - 1][ind2];
+            if (cell == 1 || cell == 3 || cell == 4 || cell == 6 || cell == 7) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Вниз (i+1, j)
+        if (ind1 + 1 < 9) {
+            int cell = boardMas_[ind1 + 1][ind2];
+            if (cell == 3 || cell == 4 || cell == 7) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Верх-лево (i-1, j-1)
+        if (ind1 - 1 >= 0 && ind2 - 1 >= 0) {
+            int cell = boardMas_[ind1 - 1][ind2 - 1];
+            if (cell == 2 || cell == 6 || cell == 7) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Верх-право (i-1, j+1)
+        if (ind1 - 1 >= 0 && ind2 + 1 < 9) {
+            int cell = boardMas_[ind1 - 1][ind2 + 1];
+            if (cell == 2 || cell == 6 || cell == 7) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Низ-лево (i+1, j-1)
+        if (ind1 + 1 < 9 && ind2 - 1 >= 0) {
+            int cell = boardMas_[ind1 + 1][ind2 - 1];
+            if (cell == 2 || cell == 6) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Низ-право (i+1, j+1)
+        if (ind1 + 1 < 9 && ind2 + 1 < 9) {
+            int cell = boardMas_[ind1 + 1][ind2 + 1];
+            if (cell == 2 || cell == 6) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Проверка коня
+        if (ind1 - 2 >= 0) {
+            if (ind2 - 1 >= 0 && boardMas_[ind1 - 2][ind2 - 1] == 5) {
+                checkWhite_ = true;
+                return;
+            }
+            if (ind2 + 1 < 9 && boardMas_[ind1 - 2][ind2 + 1] == 5) {
+                checkWhite_ = true;
+                return;
+            }
+        }
+        // Проверка ладьи и колесницы по горизонтали и вертикали
+        // Влево
+        for (int k = ind2 - 1; k >= 0; --k) {
+            int cell = boardMas_[ind1][k];
+            if (cell == 3 || cell == 4) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Вправо
+        for (int k = ind2 + 1; k < 9; ++k) {
+            int cell = boardMas_[ind1][k];
+            if (cell == 3 || cell == 4) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Вверх
+        for (int k = ind1 - 1; k >= 0; --k) {
+            int cell = boardMas_[k][ind2];
+            if (cell == 3 || cell == 4) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Вниз
+        for (int k = ind1 + 1; k < 9; ++k) {
+            int cell = boardMas_[k][ind2];
+            if (cell == 3 || cell == 4) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Проверка слона по диагоналям
+        // Вверх-лево
+        for (int i = ind1 - 1, j = ind2 - 1; i >= 0 && j >= 0; --i, --j) {
+            int cell = boardMas_[i][j];
+            if (cell == 2) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Вверх-право
+        for (int i = ind1 - 1, j = ind2 + 1; i >= 0 && j < 9; --i, ++j) {
+            int cell = boardMas_[i][j];
+            if (cell == 2) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Вниз-лево
+        for (int i = ind1 + 1, j = ind2 - 1; i < 9 && j >= 0; ++i, --j) {
+            int cell = boardMas_[i][j];
+            if (cell == 2) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkWhite_) return;
+        // Вниз-право
+        for (int i = ind1 + 1, j = ind2 + 1; i < 9 && j < 9; ++i, ++j) {
+            int cell = boardMas_[i][j];
+            if (cell == 2) {
+                checkWhite_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
     } else {
+        // Проверка соседних клеток
+        // Влево (j-1)
+        if (ind2 - 1 >= 0) {
+            int cell = boardMas_[ind1][ind2 - 1];
+            if (cell == -1 || cell == -3 || cell == -4 || cell == -6 || cell == -7) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Вправо (j+1)
+        if (ind2 + 1 < 9) {
+            int cell = boardMas_[ind1][ind2 + 1];
+            if (cell == -3 || cell == -4 || cell == -6 || cell == -7) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Вниз (i+1, j)
+        if (ind1 + 1 < 9) {
+            int cell = boardMas_[ind1 + 1][ind2];
+            if (cell == -1 || cell == -3 || cell == -4 || cell == -6 || cell == -7) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Вверх (i-1, j)
+        if (ind1 - 1 >= 0) {
+            int cell = boardMas_[ind1 - 1][ind2];
+            if (cell == -3 || cell == -4 || cell == -7) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Низ-право (i+1, j+1)
+        if (ind1 + 1 < 9 && ind2 + 1 < 9) {
+            int cell = boardMas_[ind1 + 1][ind2 + 1];
+            if (cell == -2 || cell == -6 || cell == -7) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Низ-лево (i+1, j-1)
+        if (ind1 + 1 < 9 && ind2 - 1 >= 0) {
+            int cell = boardMas_[ind1 + 1][ind2 - 1];
+            if (cell == -2 || cell == -6 || cell == -7) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Верх-право (i-1, j+1)
+        if (ind1 - 1 >= 0 && ind2 + 1 < 9) {
+            int cell = boardMas_[ind1 - 1][ind2 + 1];
+            if (cell == -2 || cell == -6) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+        // Верх-лево (i-1, j-1)
+        if (ind1 - 1 >= 0 && ind2 - 1 >= 0) {
+            int cell = boardMas_[ind1 - 1][ind2 - 1];
+            if (cell == -2 || cell == -6) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+
+        // Проверка коня (для белых)
+        if (ind1 + 2 < 9) {
+            if (ind2 - 1 >= 0 && boardMas_[ind1 + 2][ind2 - 1] == -5) {
+                checkBlack_ = true;
+                return;
+            }
+            if (ind2 + 1 < 9 && boardMas_[ind1 + 2][ind2 + 1] == -5) {
+                checkBlack_ = true;
+                return;
+            }
+        }
+
+        // Проверка ладьи и колесницы
+        // Влево
+        for (int k = ind2 - 1; k >= 0; --k) {
+            int cell = boardMas_[ind1][k];
+            if (cell == -3 || cell == -4) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+        // Вправо
+        for (int k = ind2 + 1; k < 9; ++k) {
+            int cell = boardMas_[ind1][k];
+            if (cell == -3 || cell == -4) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+        // Вниз
+        for (int k = ind1 + 1; k < 9; ++k) {
+            int cell = boardMas_[k][ind2];
+            if (cell == -3 || cell == -4) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+        // Вверх
+        for (int k = ind1 - 1; k >= 0; --k) {
+            int cell = boardMas_[k][ind2];
+            if (cell == -3 || cell == -4) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+
+        // Проверка слона
+        // Вниз-право
+        for (int i = ind1 + 1, j = ind2 + 1; i < 9 && j < 9; ++i, ++j) {
+            int cell = boardMas_[i][j];
+            if (cell == -2) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+        // Вниз-лево
+        for (int i = ind1 + 1, j = ind2 - 1; i < 9 && j >= 0; ++i, --j) {
+            int cell = boardMas_[i][j];
+            if (cell == -2) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+        // Вверх-право
+        for (int i = ind1 - 1, j = ind2 + 1; i >= 0 && j < 9; --i, ++j) {
+            int cell = boardMas_[i][j];
+            if (cell == -2) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
+        if (checkBlack_) return;
+        // Вверх-лево
+        for (int i = ind1 - 1, j = ind2 - 1; i >= 0 && j >= 0; --i, --j) {
+            int cell = boardMas_[i][j];
+            if (cell == -2) {
+                checkBlack_ = true;
+                break;
+            }
+            if (cell != 0) break;
+        }
     }
 }
 
@@ -102,7 +412,7 @@ void Board::FindKing(int &ind1, int &ind2) {
         // если ход черных
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
-                if (boardMas_[i][j] == 8) {
+                if (boardMas_[i][j] == -8) {
                     // если король найден
                     ind1 = i;
                     ind2 = j;
@@ -113,7 +423,7 @@ void Board::FindKing(int &ind1, int &ind2) {
     } else {
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
-                if (boardMas_[i][j] == -8) {
+                if (boardMas_[i][j] == 8) {
                     // если король найден
                     ind1 = i;
                     ind2 = j;
