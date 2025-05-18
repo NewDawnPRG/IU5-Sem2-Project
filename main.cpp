@@ -5,7 +5,7 @@
 
 int main(){
     // Sample code
-    Board *board = new Board();
+    auto *board = new Board();
     auto g = Graphics(board);
 
     int events = g.getEvents();
