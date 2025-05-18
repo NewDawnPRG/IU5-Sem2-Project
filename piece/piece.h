@@ -6,8 +6,9 @@
 
 class Piece {
 public:
-	piece();
-	~piece();
+	Board *_board;
+	Piece(Board *board);
+	~Piece();
 
     bool pawn(int sp1, int sp2, int fp1, int fp2, bool move);
 	bool bishop(int sp1, int sp2, int fp1, int fp2, bool move);
