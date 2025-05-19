@@ -134,36 +134,35 @@ bool Piece::knight(int sp1, int sp2, int fp1, int fp2, bool m)
     return (m && target <= 0) || (!m && target >= 0);
 }
 
-bool Piece::silver(int sp1, int sp2, int fp1, int fp2, bool m)
-{
+bool Piece::silver(int sp1, int sp2, int fp1, int fp2, bool m) {
     int dx = fp1 - sp1, dy = fp2 - sp2;
     if (abs(dx) > 1 || abs(dy) > 1) return false;
-    bool valid = (dx == 1 && dy == 0) || (abs(dx) == 1 && abs(dy) == 1);
-    if (!m) valid = (dx == -1 && dy == 0) || (abs(dx) == 1 && abs(dy) == 1);
+    
+
+    bool valid = (m) ? 
+        (dx == -1 && dy == 0) || (abs(dx) == 1 && abs(dy) == 1) : 
+        (dx == 1 && dy == 0) || (abs(dx) == 1 && abs(dy) == 1);   
+    
     if (!valid) return false;
+    
     int target = _board->GetCell(fp1, fp2);
-	if (m){
-		if(target == -8) return false;
-	}
-	else{
-		if(target == 8) return false;
-	}
-    return (m && target <= 0) || (!m && target >= 0);
+    if ((m && target == -8) || (!m && target == 8)) return false;
+    
+    return (m) ? (target <= 0) : (target >= 0);
 }
 
-bool Piece::gold(int sp1, int sp2, int fp1, int fp2, bool m)
-{
+bool Piece::gold(int sp1, int sp2, int fp1, int fp2, bool m) {
     int dx = fp1 - sp1, dy = fp2 - sp2;
     if (abs(dx) > 1 || abs(dy) > 1) return false;
-    if ((m && dx == -1 && abs(dy) == 1) || (!m && dx == 1 && abs(dy) == 1)) return false;
+    
+    if ((m && dx == 1 && abs(dy) == 1) || (!m && dx == -1 && abs(dy) == 1)) {
+        return false;
+    }
+    
     int target = _board->GetCell(fp1, fp2);
-	if (m){
-		if(target == -8) return false;
-	}
-	else{
-		if(target == 8) return false;
-	}
-    return (m && target <= 0) || (!m && target >= 0);
+    if ((m && target == -8) || (!m && target == 8)) return false;
+    
+    return (m) ? (target <= 0) : (target >= 0);
 }
 
 bool Piece::king(int sp1, int sp2, int fp1, int fp2, bool m)
