@@ -1,4 +1,5 @@
 #include "board.h"
+#include <cmath>
 
 Board::Board() {
     const int initData[9][9] = {
@@ -81,328 +82,193 @@ void Board::capturedRemove(int ind1, int ind2, int num) {
 }
 
 void Board::CheckCheck() {
-    int ind1;
-    int ind2;
-    FindKing(ind1, ind2);
-    if (currentMove_) {
-        // если ход черных
-        // Проверка соседних клеток
-        // Вправо (j+1)
-        if (ind2 + 1 < 9) {
-            int cell = boardMas_[ind1][ind2 + 1];
-            if (cell == 1 || cell == 3 || cell == 4 || cell == 6 || cell == 7) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Влево (j-1)
-        if (ind2 - 1 >= 0) {
-            int cell = boardMas_[ind1][ind2 - 1];
-            if (cell == 3 || cell == 4 || cell == 6 || cell == 7) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Вверх (i-1, j)
-        if (ind1 - 1 >= 0) {
-            int cell = boardMas_[ind1 - 1][ind2];
-            if (cell == 1 || cell == 3 || cell == 4 || cell == 6 || cell == 7) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Вниз (i+1, j)
-        if (ind1 + 1 < 9) {
-            int cell = boardMas_[ind1 + 1][ind2];
-            if (cell == 3 || cell == 4 || cell == 7) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Верх-лево (i-1, j-1)
-        if (ind1 - 1 >= 0 && ind2 - 1 >= 0) {
-            int cell = boardMas_[ind1 - 1][ind2 - 1];
-            if (cell == 2 || cell == 6 || cell == 7) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Верх-право (i-1, j+1)
-        if (ind1 - 1 >= 0 && ind2 + 1 < 9) {
-            int cell = boardMas_[ind1 - 1][ind2 + 1];
-            if (cell == 2 || cell == 6 || cell == 7) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Низ-лево (i+1, j-1)
-        if (ind1 + 1 < 9 && ind2 - 1 >= 0) {
-            int cell = boardMas_[ind1 + 1][ind2 - 1];
-            if (cell == 2 || cell == 6) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Низ-право (i+1, j+1)
-        if (ind1 + 1 < 9 && ind2 + 1 < 9) {
-            int cell = boardMas_[ind1 + 1][ind2 + 1];
-            if (cell == 2 || cell == 6) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Проверка коня
-        if (ind1 - 2 >= 0) {
-            if (ind2 - 1 >= 0 && boardMas_[ind1 - 2][ind2 - 1] == 5) {
-                checkWhite_ = true;
-                return;
-            }
-            if (ind2 + 1 < 9 && boardMas_[ind1 - 2][ind2 + 1] == 5) {
-                checkWhite_ = true;
-                return;
-            }
-        }
-        // Проверка ладьи и колесницы по горизонтали и вертикали
-        // Влево
-        for (int k = ind2 - 1; k >= 0; --k) {
-            int cell = boardMas_[ind1][k];
-            if (cell == 3 || cell == 4) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Вправо
-        for (int k = ind2 + 1; k < 9; ++k) {
-            int cell = boardMas_[ind1][k];
-            if (cell == 3 || cell == 4) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Вверх
-        for (int k = ind1 - 1; k >= 0; --k) {
-            int cell = boardMas_[k][ind2];
-            if (cell == 3 || cell == 4) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Вниз
-        for (int k = ind1 + 1; k < 9; ++k) {
-            int cell = boardMas_[k][ind2];
-            if (cell == 3 || cell == 4) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Проверка слона по диагоналям
-        // Вверх-лево
-        for (int i = ind1 - 1, j = ind2 - 1; i >= 0 && j >= 0; --i, --j) {
-            int cell = boardMas_[i][j];
-            if (cell == 2) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Вверх-право
-        for (int i = ind1 - 1, j = ind2 + 1; i >= 0 && j < 9; --i, ++j) {
-            int cell = boardMas_[i][j];
-            if (cell == 2) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Вниз-лево
-        for (int i = ind1 + 1, j = ind2 - 1; i < 9 && j >= 0; ++i, --j) {
-            int cell = boardMas_[i][j];
-            if (cell == 2) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkWhite_) return;
-        // Вниз-право
-        for (int i = ind1 + 1, j = ind2 + 1; i < 9 && j < 9; ++i, ++j) {
-            int cell = boardMas_[i][j];
-            if (cell == 2) {
-                checkWhite_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-    } else {
-        // Проверка соседних клеток
-        // Влево (j-1)
-        if (ind2 - 1 >= 0) {
-            int cell = boardMas_[ind1][ind2 - 1];
-            if (cell == -1 || cell == -3 || cell == -4 || cell == -6 || cell == -7) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Вправо (j+1)
-        if (ind2 + 1 < 9) {
-            int cell = boardMas_[ind1][ind2 + 1];
-            if (cell == -3 || cell == -4 || cell == -6 || cell == -7) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Вниз (i+1, j)
-        if (ind1 + 1 < 9) {
-            int cell = boardMas_[ind1 + 1][ind2];
-            if (cell == -1 || cell == -3 || cell == -4 || cell == -6 || cell == -7) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Вверх (i-1, j)
-        if (ind1 - 1 >= 0) {
-            int cell = boardMas_[ind1 - 1][ind2];
-            if (cell == -3 || cell == -4 || cell == -7) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Низ-право (i+1, j+1)
-        if (ind1 + 1 < 9 && ind2 + 1 < 9) {
-            int cell = boardMas_[ind1 + 1][ind2 + 1];
-            if (cell == -2 || cell == -6 || cell == -7) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Низ-лево (i+1, j-1)
-        if (ind1 + 1 < 9 && ind2 - 1 >= 0) {
-            int cell = boardMas_[ind1 + 1][ind2 - 1];
-            if (cell == -2 || cell == -6 || cell == -7) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Верх-право (i-1, j+1)
-        if (ind1 - 1 >= 0 && ind2 + 1 < 9) {
-            int cell = boardMas_[ind1 - 1][ind2 + 1];
-            if (cell == -2 || cell == -6) {
-                checkBlack_ = true;
-                return;
-            }
-        }
-        // Верх-лево (i-1, j-1)
-        if (ind1 - 1 >= 0 && ind2 - 1 >= 0) {
-            int cell = boardMas_[ind1 - 1][ind2 - 1];
-            if (cell == -2 || cell == -6) {
-                checkBlack_ = true;
-                return;
-            }
-        }
+    checkWhite_ = false;
+    checkBlack_ = false;
 
-        // Проверка коня (для белых)
-        if (ind1 + 2 < 9) {
-            if (ind2 - 1 >= 0 && boardMas_[ind1 + 2][ind2 - 1] == -5) {
-                checkBlack_ = true;
-                return;
-            }
-            if (ind2 + 1 < 9 && boardMas_[ind1 + 2][ind2 + 1] == -5) {
-                checkBlack_ = true;
-                return;
+    // Находим позиции королей
+    int whiteKingRow = -1, whiteKingCol = -1;
+    int blackKingRow = -1, blackKingCol = -1;
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            int cell = GetCell(i, j);
+            if (cell == -8) {
+                whiteKingRow = i;
+                whiteKingCol = j;
+            } else if (cell == 8) {
+                blackKingRow = i;
+                blackKingCol = j;
             }
         }
+    }
 
-        // Проверка ладьи и колесницы
-        // Влево
-        for (int k = ind2 - 1; k >= 0; --k) {
-            int cell = boardMas_[ind1][k];
-            if (cell == -3 || cell == -4) {
-                checkBlack_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkBlack_) return;
-        // Вправо
-        for (int k = ind2 + 1; k < 9; ++k) {
-            int cell = boardMas_[ind1][k];
-            if (cell == -3 || cell == -4) {
-                checkBlack_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkBlack_) return;
-        // Вниз
-        for (int k = ind1 + 1; k < 9; ++k) {
-            int cell = boardMas_[k][ind2];
-            if (cell == -3 || cell == -4) {
-                checkBlack_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkBlack_) return;
-        // Вверх
-        for (int k = ind1 - 1; k >= 0; --k) {
-            int cell = boardMas_[k][ind2];
-            if (cell == -3 || cell == -4) {
-                checkBlack_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkBlack_) return;
+    if (whiteKingRow == -1 || blackKingRow == -1) return;
 
-        // Проверка слона
-        // Вниз-право
-        for (int i = ind1 + 1, j = ind2 + 1; i < 9 && j < 9; ++i, ++j) {
-            int cell = boardMas_[i][j];
-            if (cell == -2) {
-                checkBlack_ = true;
-                break;
+    // Проверка шаха для белого короля (атакуют черные фигуры)
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            int piece = GetCell(i, j);
+            if (piece <= 0) continue;
+
+            bool isAttacking = false;
+            switch (piece) {
+                case 1: { // Пешка (черная)
+                    if (whiteKingRow == i - 1 && whiteKingCol == j)
+                        isAttacking = true;
+                    break;
+                }
+                case 2: { // Слон (черный)
+                    if (abs(whiteKingRow - i) != abs(whiteKingCol - j)) break;
+                    int dr = (whiteKingRow > i) ? 1 : -1;
+                    int dc = (whiteKingCol > j) ? 1 : -1;
+                    int r = i + dr, c = j + dc;
+                    bool clear = true;
+                    while (r != whiteKingRow || c != whiteKingCol) {
+                        if (r < 0 || r >= 9 || c < 0 || c >= 9 || GetCell(r, c) != 0) {
+                            clear = false;
+                            break;
+                        }
+                        r += dr;
+                        c += dc;
+                    }
+                    isAttacking = clear;
+                    break;
+                }
+                case 3: { // Ладья (черная)
+                    if (i != whiteKingRow && j != whiteKingCol) break;
+                    int dr = (i == whiteKingRow) ? 0 : (whiteKingRow > i) ? 1 : -1;
+                    int dc = (j == whiteKingCol) ? 0 : (whiteKingCol > j) ? 1 : -1;
+                    int r = i + dr, c = j + dc;
+                    bool clear = true;
+                    while (r != whiteKingRow || c != whiteKingCol) {
+                        if (r < 0 || r >= 9 || c < 0 || c >= 9 || GetCell(r, c) != 0) {
+                            clear = false;
+                            break;
+                        }
+                        r += dr;
+                        c += dc;
+                    }
+                    isAttacking = clear;
+                    break;
+                }
+                case 4: { // Копье (черное)
+                    if (j != whiteKingCol || whiteKingRow > i) break;
+                    bool clear = true;
+                    for (int r = i - 1; r > whiteKingRow; --r) {
+                        if (GetCell(r, j) != 0) {
+                            clear = false;
+                            break;
+                        }
+                    }
+                    isAttacking = clear && (whiteKingRow < i);
+                    break;
+                }
+                case 5: { // Конь (черный)
+                    if (whiteKingRow == i - 2 && (whiteKingCol == j - 1 || whiteKingCol == j + 1) &&
+                        i - 2 >= 0 && whiteKingCol >= 0 && whiteKingCol < 9)
+                        isAttacking = true;
+                    break;
+                }
+                case 6: { // Серебро (черное)
+                    int dr = whiteKingRow - i;
+                    int dc = whiteKingCol - j;
+                    if ((dr == -1 && (dc == 0 || abs(dc) == 1)) || (dr == 1 && abs(dc) == 1))
+                        isAttacking = true;
+                    break;
+                }
+                case 7: { // Золото (черное)
+                    int dr = whiteKingRow - i;
+                    int dc = whiteKingCol - j;
+                    if ((dr == -1 && (dc == 0 || abs(dc) == 1)) || (dr == 0 && abs(dc) == 1) || (dr == 1 && dc == 0))
+                        isAttacking = true;
+                    break;
+                }
             }
-            if (cell != 0) break;
+            if (isAttacking) checkWhite_ = true;
         }
-        if (checkBlack_) return;
-        // Вниз-лево
-        for (int i = ind1 + 1, j = ind2 - 1; i < 9 && j >= 0; ++i, --j) {
-            int cell = boardMas_[i][j];
-            if (cell == -2) {
-                checkBlack_ = true;
-                break;
+    }
+
+    // Проверка шаха для черного короля (атакуют белые фигуры)
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            int piece = GetCell(i, j);
+            if (piece >= 0) continue;
+            int absPiece = -piece;
+
+            bool isAttacking = false;
+            switch (absPiece) {
+                case 1: { // Пешка (белая)
+                    if (blackKingRow == i + 1 && blackKingCol == j)
+                        isAttacking = true;
+                    break;
+                }
+                case 2: { // Слон (белый)
+                    if (abs(blackKingRow - i) != abs(blackKingCol - j)) break;
+                    int dr = (blackKingRow > i) ? 1 : -1;
+                    int dc = (blackKingCol > j) ? 1 : -1;
+                    int r = i + dr, c = j + dc;
+                    bool clear = true;
+                    while (r != blackKingRow || c != blackKingCol) {
+                        if (r < 0 || r >= 9 || c < 0 || c >= 9 || GetCell(r, c) != 0) {
+                            clear = false;
+                            break;
+                        }
+                        r += dr;
+                        c += dc;
+                    }
+                    isAttacking = clear;
+                    break;
+                }
+                case 3: { // Ладья (белая)
+                    if (i != blackKingRow && j != blackKingCol) break;
+                    int dr = (i == blackKingRow) ? 0 : (blackKingRow > i) ? 1 : -1;
+                    int dc = (j == blackKingCol) ? 0 : (blackKingCol > j) ? 1 : -1;
+                    int r = i + dr, c = j + dc;
+                    bool clear = true;
+                    while (r != blackKingRow || c != blackKingCol) {
+                        if (r < 0 || r >= 9 || c < 0 || c >= 9 || GetCell(r, c) != 0) {
+                            clear = false;
+                            break;
+                        }
+                        r += dr;
+                        c += dc;
+                    }
+                    isAttacking = clear;
+                    break;
+                }
+                case 4: { // Копье (белое)
+                    if (j != blackKingCol || blackKingRow < i) break;
+                    bool clear = true;
+                    for (int r = i + 1; r < blackKingRow; ++r) {
+                        if (GetCell(r, j) != 0) {
+                            clear = false;
+                            break;
+                        }
+                    }
+                    isAttacking = clear && (blackKingRow > i);
+                    break;
+                }
+                case 5: { // Конь (белый)
+                    if (blackKingRow == i + 2 && (blackKingCol == j - 1 || blackKingCol == j + 1) &&
+                        i + 2 < 9 && blackKingCol >= 0 && blackKingCol < 9)
+                        isAttacking = true;
+                    break;
+                }
+                case 6: { // Серебро (белое)
+                    int dr = blackKingRow - i;
+                    int dc = blackKingCol - j;
+                    if ((dr == 1 && (dc == 0 || abs(dc) == 1)) || (dr == -1 && abs(dc) == 1))
+                        isAttacking = true;
+                    break;
+                }
+                case 7: { // Золото (белое)
+                    int dr = blackKingRow - i;
+                    int dc = blackKingCol - j;
+                    if ((dr == 1 && (dc == 0 || abs(dc) == 1)) || (dr == 0 && abs(dc) == 1) || (dr == -1 && dc == 0))
+                        isAttacking = true;
+                    break;
+                }
             }
-            if (cell != 0) break;
-        }
-        if (checkBlack_) return;
-        // Вверх-право
-        for (int i = ind1 - 1, j = ind2 + 1; i >= 0 && j < 9; --i, ++j) {
-            int cell = boardMas_[i][j];
-            if (cell == -2) {
-                checkBlack_ = true;
-                break;
-            }
-            if (cell != 0) break;
-        }
-        if (checkBlack_) return;
-        // Вверх-лево
-        for (int i = ind1 - 1, j = ind2 - 1; i >= 0 && j >= 0; --i, --j) {
-            int cell = boardMas_[i][j];
-            if (cell == -2) {
-                checkBlack_ = true;
-                break;
-            }
-            if (cell != 0) break;
+            if (isAttacking) checkBlack_ = true;
         }
     }
 }
