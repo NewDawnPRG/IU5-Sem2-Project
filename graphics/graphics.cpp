@@ -25,6 +25,7 @@ void Graphics::redraw()
     drawSelection();
     drawFigures();
     drawCurrentMove();
+    drawChecks();
     _window.display();
 }
 
@@ -259,6 +260,29 @@ void Graphics::drawCurrentMove()
                      sf::Color::White);
     }
 }
+
+void Graphics::drawCheck(float x, float y, bool good)
+{
+    std::string path = "img/check/";
+    if (good)
+        path += "good.png";
+    else
+        path += "warning.png";
+
+    const sf::Texture texture(path, false);
+    float scale = cellSize / std::max(texture.getSize().x, texture.getSize().y);
+    sf::Sprite sprite(texture);
+    sprite.setPosition({x, y    });
+    sprite.setScale({scale, scale});
+    _window.draw(sprite);
+}
+
+void Graphics::drawChecks()
+{
+    drawCheck(startPoint.x - cellSize, endPoint.y - cellSize, _board->checkBlack_);
+    drawCheck(startPoint.x - cellSize, startPoint.y, _board->checkWhite_);
+}
+
 
 void Graphics::updateDrawingValues()
 {

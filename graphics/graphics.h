@@ -4,10 +4,10 @@
 #include <SFML/Graphics.hpp>
 
 #include "../board/board.h"
+#include "../piece/piece.h"
 
 #include <map>
 
-#include "../piece/piece.h"
 
 class Graphics
 {
@@ -76,6 +76,10 @@ private:
     void drawFigures();
 
     void drawCurrentMove();
+
+    void drawCheck(float x, float y, bool good);
+
+    void drawChecks();
 
     void updateDrawingValues();
 

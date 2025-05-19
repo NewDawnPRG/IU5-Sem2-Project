@@ -3,6 +3,9 @@
 
 class Board {
 public:
+    bool checkBlack_;       // Находится ли король черных под шахом?
+    bool checkWhite_;       // Находится ли король белых под шахом?
+
     Board();  // Конструктор доски
     ~Board(); // Деструктор доски
 
@@ -21,8 +24,6 @@ private:
     int capturedBlack_[19]; // Массив захваченных черных фигур
     int capturedWhite_[19]; // Массив захваченных белых фигур
     bool currentMove_;      // Чей текущий ход?
-    bool checkBlack_;       // Находится ли король черных под шахом?
-    bool checkWhite_;       // Находится ли король белых под шахом?
 };
 
 #endif // BOARD_H
