@@ -165,17 +165,18 @@ bool Piece::gold(int sp1, int sp2, int fp1, int fp2, bool m) {
     return (m) ? (target <= 0) : (target >= 0);
 }
 
-bool Piece::king(int sp1, int sp2, int fp1, int fp2, bool m) {
-    // Проверка базового движения короля
+bool Piece::king(int sp1, int sp2, int fp1, int fp2, bool m)
+{
     int dx = abs(sp1 - fp1), dy = abs(sp2 - fp2);
     if (dx > 1 || dy > 1) return false;
-
-    // Проверка цели на свою фигуру
     int target = _board->GetCell(fp1, fp2);
-    if ((m && target < 0) || (!m && target > 0)) return false;
-
-    // Проверка на соседство с вражеским королём
-    int enemy_king = m ? 8 : -8; // Определяем ID вражеского короля
+	if (m){
+		if(target == -8) return false;
+	}
+	else{
+		if(target == 8) return false;
+	}
+	int enemy_king = m ? 8 : -8; // Определяем ID вражеского короля
     for (int i = -1; i <= 1; ++i) {
         for (int j = -1; j <= 1; ++j) {
             if (i == 0 && j == 0) continue; // Пропускаем текущую клетку
@@ -188,5 +189,5 @@ bool Piece::king(int sp1, int sp2, int fp1, int fp2, bool m) {
             }
         }
     }
-    return true;
+    return (m && target <= 0) || (!m && target >= 0);
 }
