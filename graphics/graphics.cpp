@@ -272,15 +272,15 @@ void Graphics::drawCheck(float x, float y, bool good)
     const sf::Texture texture(path, false);
     float scale = cellSize / std::max(texture.getSize().x, texture.getSize().y);
     sf::Sprite sprite(texture);
-    sprite.setPosition({x, y    });
+    sprite.setPosition({x, y});
     sprite.setScale({scale, scale});
     _window.draw(sprite);
 }
 
 void Graphics::drawChecks()
 {
-    drawCheck(startPoint.x - cellSize, endPoint.y - cellSize, _board->checkBlack_);
-    drawCheck(startPoint.x - cellSize, startPoint.y, _board->checkWhite_);
+    drawCheck(startPoint.x - cellSize, endPoint.y - cellSize, !_board->checkBlack_);
+    drawCheck(startPoint.x - cellSize, startPoint.y, !_board->checkWhite_);
 }
 
 
