@@ -169,25 +169,26 @@ bool Piece::king(int sp1, int sp2, int fp1, int fp2, bool m)
 {
     int dx = abs(sp1 - fp1), dy = abs(sp2 - fp2);
     if (dx > 1 || dy > 1) return false;
-    int target = _board->GetCell(fp1, fp2);
-	if (m){
-		if(target == -8) return false;
-	}
-	else{
-		if(target == 8) return false;
-	}
-	int enemy_king = m ? 8 : -8; // Определяем ID вражеского короля
-    for (int i = -1; i <= 1; ++i) {
-        for (int j = -1; j <= 1; ++j) {
-            if (i == 0 && j == 0) continue; // Пропускаем текущую клетку
-            int x = fp1 + i;
-            int y = fp2 + j;
-            if (x >= 0 && x < 8 && y >= 0 && y < 8) { // Границы доски
-                if (_board->GetCell(x, y) == enemy_king) {
-                    return false; // Рядом вражеский король
-                }
-            }
-        }
-    }
-    return (m && target <= 0) || (!m && target >= 0);
+    int targett = _board->GetCell(fp1, fp2);
+	for (int dx = -1; dx <= 1; ++dx) {
+		for (int dy = -1; dy <= 1; ++dy) {
+			int x = fp1 + dx;
+			int y = fp2 + dy;
+			
+			// Проверка выхода за границы доски
+			if (x < 0 || x >= 9 || y < 0 || y >= 9) {
+				continue;
+			}
+			
+			int target = _board->GetCell(x, y);
+			
+			if (m) {
+				if (target == -8) return false;
+			} else {
+				if (target == 8) return false;
+			}
+		}
+}
+
+    return (m && targett <= 0) || (!m && targett >= 0);
 }
