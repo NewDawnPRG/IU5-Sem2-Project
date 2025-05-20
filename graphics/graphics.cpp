@@ -7,9 +7,9 @@
 Graphics::Graphics(Board* board)
 {
     std::string title = "Сёги";
-    _window = sf::RenderWindow(sf::VideoMode({600, 800}),
+    _window = sf::RenderWindow(sf::VideoMode({960, 1280}),
                                sf::String::fromUtf8(title.begin(), title.end()));
-    _window.setMinimumSize(sf::Vector2u(480, 600));
+    _window.setMinimumSize(sf::Vector2u(720, 900));
     _window.setFramerateLimit(30);
 
     _board = board;
@@ -71,20 +71,23 @@ void Graphics::onLeftClicked()
         int cell = _board->GetCell(y, x);
         if (_selectedX == x && _selectedY == y)
         {
-            _selectedX = -1, _selectedY = -1;
+            _selectedX = -1, _selectedY = -1, _selected = -1;
         }
         else if (cell > 0 != _board->getCurrentMove() || cell == 0)
         {
             // empty cell
             if (_selectedX != -1 && _selectedY != -1)
-            {
                 move(y, x);
+            else if (_selected != -1)
+            {
+                _board->capturedRemove(y, x, _selected);
+                _selectedX = -1, _selectedY = -1, _selected = -1;
             }
         }
         else if (cell > 0 == _board->getCurrentMove())
         {
             // selected color == move color
-            _selectedX = x, _selectedY = y;
+            _selectedX = x, _selectedY = y, _selected = -1;
         }
         else if (cell > 0 != _board->getCurrentMove())
         {
@@ -96,14 +99,32 @@ void Graphics::onLeftClicked()
         BORDER <= pos.y && pos.y <= BORDER + cellSize * 2)
     {
         // clicked on up reserve
-        std::cout << "Clicked on up reserve\n";
+        if (_board->getCurrentMove())
+            return;
+        int index = (pos.x - BORDER - xPadding) / cellSize;
+        if (pos.y - BORDER > cellSize)
+            index += 9;
+
+        if (_board->getCapturedBlack()[index] != 0)
+            _selectedX = -1, _selectedY = -1, _selected = index;
+        else
+            _selectedX = -1, _selectedY = -1, _selected = -1;
     }
     else if (BORDER + xPadding <= pos.x && pos.x <= BORDER + xPadding + cellSize * 9 &&
         static_cast<float>(size.y) - BORDER - 2 * cellSize <= pos.y &
         pos.y <= static_cast<float>(size.y) - BORDER - 2 * cellSize + 9 * cellSize)
     {
         // clicked on down reserve
-        std::cout << "Clicked on down reserve\n";
+        if (!_board->getCurrentMove())
+            return;
+        int index = (pos.x - BORDER - xPadding) / cellSize;
+        if (pos.y > static_cast<float>(size.y) - BORDER - cellSize)
+            index += 9;
+
+        if (_board->getCapturedWhite()[index] != 0)
+            _selectedX = -1, _selectedY = -1, _selected = index;
+        else
+            _selectedX = -1, _selectedY = -1, _selected = -1;
     }
 }
 
@@ -166,6 +187,23 @@ void Graphics::drawSelection()
             startPoint.x + cellSize * static_cast<float>(_selectedX),
             startPoint.y + cellSize * static_cast<float>(_selectedY)
         });
+        rect.setFillColor(clrSelection);
+        _window.draw(rect);
+    }
+    else if (_selected != -1)
+    {
+        sf::RectangleShape rect;
+        rect.setSize({cellSize, cellSize});
+        if (!_board->getCurrentMove())
+            rect.setPosition({
+                BORDER + xPadding + cellSize * (_selected % 9),
+                BORDER + cellSize * (_selected / 9)
+            });
+        else
+            rect.setPosition({
+                BORDER + xPadding + cellSize * (_selected % 9),
+                static_cast<float>(size.y) - BORDER - cellSize * 2 + cellSize * (_selected / 9)
+            });
         rect.setFillColor(clrSelection);
         _window.draw(rect);
     }
@@ -270,7 +308,7 @@ void Graphics::drawCheck(float x, float y, bool good)
         path += "warning.png";
 
     const sf::Texture texture(path, false);
-    float scale = cellSize / std::max(texture.getSize().x, texture.getSize().y);
+    float scale = cellSize / static_cast<float>(std::max(texture.getSize().x, texture.getSize().y));
     sf::Sprite sprite(texture);
     sprite.setPosition({x, y});
     sprite.setScale({scale, scale});
@@ -282,7 +320,6 @@ void Graphics::drawChecks()
     drawCheck(startPoint.x - cellSize, endPoint.y - cellSize, !_board->checkBlack_);
     drawCheck(startPoint.x - cellSize, startPoint.y, !_board->checkWhite_);
 }
-
 
 void Graphics::updateDrawingValues()
 {
@@ -300,6 +337,6 @@ void Graphics::move(int y, int x)
                           abs(_board->GetCell(_selectedY, _selectedX))))
     {
         _board->SetMove(_selectedY, _selectedX, y, x);
-        _selectedX = -1, _selectedY = -1;
+        _selectedX = -1, _selectedY = -1, _selected = -1;
     }
 }

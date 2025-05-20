@@ -46,8 +46,10 @@ class Graphics
         {-3, "WHI.png"}, // Белая ладья
         {-8, "WOU.png"} // Белый король
     };
+
     int _selectedX = -1;
     int _selectedY = -1;
+    int _selected = -1;
 
 public:
     Graphics(Board* board);

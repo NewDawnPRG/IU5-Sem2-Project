@@ -23,7 +23,7 @@ Board::Board() {
     // Инициализация массивов захваченных фигур
     for (int i = 0; i < 19; ++i) {
         capturedBlack_[i] = 0;
-        capturedWhite_[i] = 0;
+        capturedWhite_[i] = 1;
     }
     currentMove_ = true; // начальный ход за черными (true), белые - false.
     checkBlack_ = false;
