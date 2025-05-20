@@ -6,7 +6,7 @@
 
 Graphics::Graphics(Board* board)
 {
-    std::string title = "Сёги", icon_path = "img/icon.png";
+    const std::string title = "Сёги", icon_path = "img/icon.png";
     _window = sf::RenderWindow(sf::VideoMode({960, 1280}),
                                sf::String::fromUtf8(title.begin(), title.end()));
     _window.setMinimumSize(sf::Vector2u(720, 900));
