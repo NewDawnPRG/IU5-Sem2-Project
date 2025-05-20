@@ -6,11 +6,15 @@
 
 Graphics::Graphics(Board* board)
 {
-    std::string title = "Сёги";
+    std::string title = "Сёги", icon_path = "img/icon.png";
     _window = sf::RenderWindow(sf::VideoMode({960, 1280}),
                                sf::String::fromUtf8(title.begin(), title.end()));
     _window.setMinimumSize(sf::Vector2u(720, 900));
-    _window.setFramerateLimit(30);
+    _window.setFramerateLimit(60);
+
+    sf::Image icon;
+    if (icon.loadFromFile(icon_path))
+        _window.setIcon(icon);
 
     _board = board;
     _piece = new Piece(board);
